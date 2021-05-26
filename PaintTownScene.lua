@@ -124,7 +124,6 @@ local function UpdateLocalOptimized()
         locationName.text = terrainInfo[6] --area type name
     end
     
-    
     if (innerForceRedraw == false) then -- none of this needs to get processed if we haven't moved and there's no new maptiles to refresh.
     for square = 1, #cellCollection do
         -- check each spot based on current cell, modified by gridX and gridY
@@ -137,7 +136,7 @@ local function UpdateLocalOptimized()
                 cellCollection[square].fill = {0, 0} -- required to make Solar2d actually update the texture.
                 local paint = {
                     type = "image",
-                    filename = "Tiles\\" ..plusCodeNoPlus .. ".pngTile",
+                    filename = "Tiles/" ..plusCodeNoPlus .. ".pngTile", --TODO: does fixing this slash from \\ to / make tiles work on android?
                     baseDir = system.ResourceDirectory
                 }
                 cellCollection[square].fill = paint

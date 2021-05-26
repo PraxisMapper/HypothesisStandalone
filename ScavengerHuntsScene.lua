@@ -2,8 +2,11 @@ local composer = require("composer")
 local scene = composer.newScene()
 
 require("database")
+require("helpers")
 
 local widget = require("widget")
+
+local thingsOnScreen = {}
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -11,10 +14,62 @@ local widget = require("widget")
 -- -----------------------------------------------------------------------------------
 local tabBar = ""
 local header = ""
+local scrollView = ""
 
 local function GoToSceneSelect()
     local options = {effect = "flip", time = 125}
     composer.gotoScene("SceneSelect", options)
+end
+
+local function innerTabPressed(event)
+    --local sceneGroup = self.view
+    print(event)
+    print(event.target)
+    print(event.target.id)
+
+    --Remove any existing items.
+    for i,v in ipairs(thingsOnScreen) do
+        scrollView:remove(v)
+    end
+    thingsOnScreen = {}
+
+    local query = "SELECT * FROM ScavengerHunts WHERE listName = '" .. event.target.id .. "'"
+    print(query)
+    local results = Query(query)
+    print(#results)
+    print("things to list")
+    --local height = #results * 50
+print(1)
+    --scrollView:removeSelf()
+    print(2)
+    -- scrollView = widget.newScrollView(
+    --     {
+    --         top = 200,
+    --         left = 0, 
+    --         width = 720,
+    --         height = 1080
+    --     }
+    -- )
+    print(3)
+    --sceneGroup:insert(scrollView)
+    print(4)
+
+    for i,s in ipairs(results) do
+        print(dump(s))
+        local textEntry = display.newText(scrollView, s[3], 25, i * 50, native.systemFont, 35)
+        textEntry.anchorX = 0
+        if (s[4] == 1) then
+            textEntry:setFillColor(0, .7, 0)
+        else
+            textEntry:setFillColor(.7, 0, 0)
+        end
+        print("A")
+        thingsOnScreen[i] = textEntry
+        print("B")
+        scrollView:insert(textEntry)
+    end
+
+     
 end
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -33,24 +88,31 @@ function scene:create(event)
 
 
     -- Code here runs when the scene is first created but has not yet appeared on screen
-    local tabSql = "SELECT DISTINCT listname FROM ScavengerHunts ORDER BY listname"
-    print(1)
+    local tabSql = "SELECT DISTINCT listname FROM ScavengerHunts ORDER BY playerHasVisited, listname"
 
     local results = Query(tabSql)
-    print(2)
-    print(dump(results))
-    print(#results)
+
     local Tbuttons = {}
     for i, r in ipairs(results) do
-        local btnConfig = {label = r[1], size = 14}
+        local btnConfig = {label = r[1], id = r[1], size = 14, onPress = innerTabPressed}
         table.insert(Tbuttons, btnConfig)
     end
 
-    print(3)
     local options = {buttons = Tbuttons, left = 0, top = 150}
     tabBar = widget.newTabBar(options)
     sceneGroup:insert(tabBar)
-    print(4)
+
+    scrollView = widget.newScrollView(
+        {
+            top = 200,
+            left = 0, 
+            width = 720,
+            height = 1080,
+            backgroundColor = {.1, .1, .1}
+        }
+    )
+
+    sceneGroup:insert(scrollView)
 
 end 
 

@@ -5,7 +5,6 @@ require("database")
 require("helpers") --for Split
 
 --This app isn't open source, i can hardcode this to my aws server.
---serverURL = "https://us.praxismapper.org/" --OFFICIAL domain name WOOOOO! And with SSL!
 --serverURL = "http://ec2-3-138-184-251.us-east-2.compute.amazonaws.com/" --AWS Test server, IP part of address will change each time instance is launched.
 serverURL = "http://192.168.50.247/PraxisMapper/" --Localhost test.
 

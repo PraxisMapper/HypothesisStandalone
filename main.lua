@@ -94,7 +94,7 @@ function gpsListener(event)
 
     if (lastPlusCode ~= currentPlusCode) then
         --Have this event handle all the DB updates for all game modes.
-        
+        --NOTE: this will require some extra logic for local debugging, since that previously was handled in game modes.
         --PaintTheTown: mark this as visited and update times for daily/weekly bonuses in grantPoints
         if(debugGPS) then print("calculating score") end
         lastScoreLog = "Earned " .. grantPoints(plusCodeNoPlus) .. " points from cell " .. plusCodeNoPlus
@@ -147,7 +147,7 @@ print("shifting to loading scene")
 composer.gotoScene("SceneSelect")
 --composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
---currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 
 local function myUnhandledErrorListener( event )
  
