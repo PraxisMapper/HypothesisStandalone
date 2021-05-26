@@ -10,14 +10,17 @@ system.setIdleTimer(false) --disables screen auto-off.
 require("store")
 require("helpers")
 require("gameLogic")
---require("database")
+require("database")
 require("plusCodes")
 require("localNetwork")
+
+local composer = require("composer")
+composer.isDebug = debug
 
 forceRedraw = false --used to tell the screen to redraw even if we havent moved.
 
 debug = true --set false for release builds. Set true for lots of console info being dumped. Must be global to apply to all files.
-debugGPS = true --display data for the GPS event and timer loop and auto-move
+debugGPS = false --display data for the GPS event and timer loop and auto-move
 debugDB = false
 debugLocal = true
 debugNetwork = false
@@ -51,49 +54,9 @@ tappedCell = "            "
 redrawOverlay = false
 factionID = 0 --composer.getVariable(factionID) used to be used in some spots, reverted that change.
 
-typeNames = {}
-typeNames["1"] = "Water"
-typeNames["2"] = "Wetlands"
-typeNames["3"] = "Park"
-typeNames["4"] = "Beach"
-typeNames["5"] = "University"
-typeNames["6"] = "Nature Reserve"
-typeNames["7"] = "Cemetery"
---typeNames["8"] = "Retail" --old mall entry, should never appear
-typeNames["9"] = "Retail"
-typeNames["10"] = "Tourism"
-typeNames["11"] = "Historical"
-typeNames["12"] = "Trail"
---typeNames["13"] = "" --admin entry, should never appear
-typeNames["14"] = "Building"
-typeNames["15"] = "Road"
-typeNames["16"] = "Parking"
-typeNames["100"] = "Server-Generated"
-
 requestedCells = ""
 
 cellDataCache = {}
-
---making the network indicator persist through all scenes
-networkDown = display.newImageRect("themables/networkDown.png", 25, 25)
-networkDown.x = 0
-networkDown.y = 0
-networkDown.anchorX = 0
-networkDown.anchorY = 0
-
-networkUp = display.newImageRect("themables/networkUp.png", 25, 25)
-networkUp.x = 0
-networkUp.y = 0
-networkUp.anchorX = 0
-networkUp.anchorY = 0
-networkUp.isVisible = false
-
-networkTx = display.newImageRect("themables/networkTransfer.png", 25, 25)
-networkTx.x = 0
-networkTx.y = 0
-networkTx.anchorX = 0
-networkTx.anchorY = 0
-networkTx.isVisible = false
 
 tapData = display.newText("Cell Tapped:", 20, 1250, native.systemFont, 20)
 tapData.anchorX = 0
@@ -127,11 +90,22 @@ function gpsListener(event)
     if (debugGPS) then print ("Plus Code: " .. pluscode) end
     currentPlusCode = pluscode
     local plusCode8 = currentPlusCode:sub(0,8)
+    local plusCodeNoPlus = removePlus(currentPlusCode)
 
     if (lastPlusCode ~= currentPlusCode) then
-        --update score stuff, we moved a cell.  Other stuff needs to process as usual.
+        --Have this event handle all the DB updates for all game modes.
+        
+        --PaintTheTown: mark this as visited and update times for daily/weekly bonuses in grantPoints
         if(debugGPS) then print("calculating score") end
-        lastScoreLog = "Earned " .. grantPoints(currentPlusCode) .. " points from cell " .. currentPlusCode
+        lastScoreLog = "Earned " .. grantPoints(plusCodeNoPlus) .. " points from cell " .. plusCodeNoPlus
+        
+        --Scavenger Hunt: Mark this area as visited
+        local terrainInfo = LoadTerrainData(currentPlusCode)
+        if (#terrainInfo > 1) then
+            local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE OsmElementId = " .. terrainInfo[3]
+            Exec(cmd)
+        end
+
         lastPlusCode = currentPlusCode
     end
 
@@ -140,15 +114,16 @@ function gpsListener(event)
 end
 
 function backListener(event)
-    if (debug) then print("key listener got")  end
+    if (debug) then print("key listener hit") end
     if (event.keyName == "back" and event.phase == "up") then
+        print("handling")
         local currentScene = composer.getSceneName("current")
-        if (currentScene == "PaintTownScene") then
-            return false
-        end
-        if (debug) then print("back to main scene") end
+        print(currentScene)
+        if (currentScene == "SceneSelect") then return false end
+        if (debug) then print("back to scene select") end
         local options = {effect = "flip", time = 125}
-        composer.gotoScene("PaintTownScene", options)
+        composer.gotoScene("SceneSelect", options)
+        print("handled")
         return true
     end
     if (debug) then print("didn't handle this one") end
@@ -168,30 +143,11 @@ end
 
 Runtime:addEventListener("key", backListener) --this could be removed on iOS
 
-function netUp()
-    networkUp.isVisible = true
-    networkDown.isVisible = false
-    networkTx.isVisible = false
-end
-
-function netDown()
-    networkDown.isVisible = true
-    networkUp.isVisible = false
-    networkTx.isVisible = false
-end
-
-function netTransfer()
-    networkDown.isVisible = false
-    networkUp.isVisible = false
-    networkTx.isVisible = true
-end
-
 print("shifting to loading scene")
-local composer = require("composer")
-composer.isDebug = debug
-composer.gotoScene("loadingScene")
+composer.gotoScene("SceneSelect")
+--composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
-currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+--currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 
 local function myUnhandledErrorListener( event )
  

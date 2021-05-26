@@ -1,19 +1,12 @@
 --Paint The Town (single player)
 --Pending changes:
---One team (the player).
---All network calls need changed to local DB checks
---Load tiles from a sub-directory.
---visited cell display now always on 'all-time'
---scoreboard is now just personal score
-
 
 local composer = require("composer")
 local scene = composer.newScene()
 
 require("UIParts")
 require("database")
---require("localNetwork")
-require("dataTracker") -- replaced localNetwork for this scene
+--require("dataTracker") -- replaced localNetwork for this scene
 require("gameLogic")
 
 -- -----------------------------------------------------------------------------------
@@ -28,15 +21,13 @@ local CellTapSensors = {} -- Not detecting taps in this mode. This is the highli
 local ctsGroup = display.newGroup()
 ctsGroup.x = -8
 ctsGroup.y = 10
--- color codes
 
+-- color codes
 local unvisitedCell = {0, 0} -- completely transparent
 local visitedCell = {.529, .807, .921, .4} -- sky blue, 50% transparent
 local selectedCell = {.8, .2, .2, .4} -- red, 50% transparent
 
 local timerResults = nil
-local timerResultsScoreboard = nil
-local PaintTownMapUpdateCountdown = 24 --wait this many loops over the main update before doing a network call.  Approx. 3 seconds with current timings.
 local firstRun = true
 
 local locationText = ""
@@ -48,41 +39,6 @@ local timeText = ""
 local personalScore = ""
 
 local zoom = ""
---local swapInstance = ""
-
---local instanceID = 1 --1 is weekly, 2 is permanent
-local arrowPainted = false
-
-local fullDataDownloadCounter = 0; --At 0, force-reload all data instead of recent only data and reset to 100. 300 seconds = 5 minutes to force-refresh all visible data.
-
---function GetScoreboard()
-    --local url = serverURL .. "PaintTown/Scoreboard/" .. instanceID
-    --network.request(url, "GET", GetScoreboardListener)
-    --if (debug) then print("scoreboard request sent to " .. url) end
---end
-
--- function GetScoreboardListener(event) --these listeners can't be local.
---     if (debug) then  print("scoreboard listener fired") end
---     if event.status == 200 then
---         if (debug) then 
---             print("got Scoreboard")
---             print(event.response)
---         end
---         local results = Split(event.response, "|")
---         local setText = ""
---         --line 1 is instanceName#time.
---         --every other line is teamName=Score, need to iterate those.
---         setText = Split(results[1], "#")[1] .. "\n"
---         for i = 2, #results do
---             setText = setText .. results[i] .. "\n"
---         end
---         scoreText.text = setText
---     else
---         print("scoreboard listener failed")
---     end
-
---     if (debug) then print("scoreboard text done") end
--- end
 
 local function testDrift()
     if (os.time() % 2 == 0) then
@@ -128,34 +84,8 @@ local function ToggleZoom()
 
     reorderUI()
     forceRedraw = true
-    --fullDataDownloadCounter = 0
     timer.resume(timerResults)
 end
-
--- local function switchMode()
---     if (instanceID == 1) then
---         instanceID = 2
---     else
---         instanceID =1
---     end
---     scoreText.text = "Loading...."
---     forceRedraw = true
---     requestedPaintTownCells = {} --clears out the display cache. Might need tweaked
---     DownloadedCell8sThisSession = {}
---     fullDataDownloadCounter = 0 --force reload stuff
---     print("mode switched to " .. instanceID)
--- end
-
--- local function tintArrow(teamID)
---     if (teamID == 1) then
---         directionArrow:setFillColor(1, 0, 0, .5)
---     elseif (teamID == 2) then
---         directionArrow:setFillColor(0, 1, 0, .5)
---     elseif (teamID == 3) then
---         directionArrow:setFillColor(0, 0, 1, .5) 
---     end
---     arrowPainted = true
--- end
 
 local function GoToSceneSelect()
     local options = {effect = "flip", time = 125}
@@ -168,21 +98,11 @@ local function UpdateLocalOptimized()
     -- Then loop for touch event rectangles.
     if (debugLocal) then print("start UpdateLocalOptimized") end
     if (currentPlusCode == "") then
-        --if timerResults == nil then
-            --timerResults = timer.performWithDelay(150, UpdateLocalOptimized, -1)
-        --end
+
         if (debugLocal) then print("skipping, no location.") end
         print("NO_LOC")
         return
     end
-    --print("1")
-
-     --if (timerResultsScoreboard == nil) then
-         --print("no scoreboard set")
-         --timerResultsScoreboard = timer.performWithDelay(2500, GetScoreboard, -1)
-     --else
-        --timer.resume(timerResultsScoreboard)
-     --end
 
     if (debug) then debugText.text = dump(lastLocationEvent) end
 
@@ -192,60 +112,28 @@ local function UpdateLocalOptimized()
     firstRun = false
     forceRedraw = false
     if currentPlusCode ~= previousPlusCode then
-        --print("2")
-        --ClaimPaintTownCell(plusCodeNoPlus)
-        grantPoints(plusCodeNoPlus)
+        --TODO: find a way to only update the square the arrow is in instead of redrawing all of them.
         innerForceRedraw = true
     end
     previousPlusCode = currentPlusCode
-    --print("3")
-
+    
     -- draw this place's name on screen, or an empty string if its not a place.
     local terrainInfo = LoadTerrainData(plusCodeNoPlus) -- terrainInfo is a whole row from the DB.
     locationName.text = terrainInfo[5] --name
     if locationName.text == "" then
         locationName.text = terrainInfo[6] --area type name
     end
-    --print(4)
-
-    --PaintTownMapUpdateCountdown = PaintTownMapUpdateCountdown -1
-    -- Step 1: set background map tiles for the Cell8. Should be much simpler than old loop.
+    
+    
     if (innerForceRedraw == false) then -- none of this needs to get processed if we haven't moved and there's no new maptiles to refresh.
     for square = 1, #cellCollection do
         -- check each spot based on current cell, modified by gridX and gridY
-        
         local thisSquaresPluscode = currentPlusCode
         thisSquaresPluscode = shiftCell(thisSquaresPluscode, cellCollection[square].gridX, 8)
         thisSquaresPluscode = shiftCell(thisSquaresPluscode, cellCollection[square].gridY, 7)
         cellCollection[square].pluscode = thisSquaresPluscode
         plusCodeNoPlus = removePlus(thisSquaresPluscode):sub(1, 8)
-        --if (PaintTownMapUpdateCountdown == 0) then --roughly every 3 seconds
-            --GetScoreboard()
-            --local getAll = (fullDataDownloadCounter == 0)
-            --GetPaintTownMapData8(plusCodeNoPlus, instanceID, getAll) --no instance id anymore
-            --fullDataDownloadCounter = fullDataDownloadCounter - 1
-            --if (fullDataDownloadCounter <= 0) then
-                --fullDataDownloadCounter = 20
-            --end
-            -- if (arrowPainted == false) then
-            --     local teamID = factionID
-            --     if (teamID == 0) then
-            --         GetTeamAssignment()
-            --     else            
-            --         tintArrow(teamID)
-            --     end
-            -- end
-        --end
-            --GetMapData8(plusCodeNoPlus)
-            --local imageRequested = requestedMapTileCells[plusCodeNoPlus] -- read from DataTracker because we want to know if we can paint the cell or not.
-            --local imageExists = doesFileExist(plusCodeNoPlus .. "-11.png", system.CachesDirectory)
-            --if (imageRequested == nil) then -- or imageExists == 0 --if I check for 0, this is always nil? if I check for nil, this is true when images are present?
-                --imageExists = doesFileExist(plusCodeNoPlus .. "-11.png", system.CachesDirectory)
-            --end
-            --if (imageExists == false or imageExists == nil) then -- not sure why this is true when file is found and 0 when its not? -- or imageExists == 0
-                 --cellCollection[square].fill = {0, 0} -- required to make Solar2d actually update the texture.
-                 --GetMapTile8(plusCodeNoPlus)
-            --else
+
                 cellCollection[square].fill = {0, 0} -- required to make Solar2d actually update the texture.
                 local paint = {
                     type = "image",
@@ -253,13 +141,14 @@ local function UpdateLocalOptimized()
                     baseDir = system.ResourceDirectory
                 }
                 cellCollection[square].fill = paint
-            --end
         end
     end
     --print(5)
 
     if (debug) then  print("done with map cells") end
     -- Step 2: set up event listener grid. These need Cell10s
+    --If there was a good way to shortcut this, and only update the cell the arrow is currently in, that would be a good optimization
+    --(always update the cell the arrow is in, skip the others unless innerForceRedraw is true)
     local baselinePlusCode = currentPlusCode:sub(1,8) .. "+FF"
     if (innerForceRedraw) then --Also no need to do all of this unless we shifted our Cell8 location.
     for square = 1, #CellTapSensors do
@@ -279,16 +168,8 @@ local function UpdateLocalOptimized()
              if (VisitedCell(idCheck)) then
                 CellTapSensors[square].fill = visitedCell
              end
-            -- if (requestedPaintTownCells[idCheck] ~= nil) then
-            --     local teamIDThisSpace = requestedPaintTownCells[idCheck]
-            --     CellTapSensors[square].fill = TeamColors[tonumber(teamIDThisSpace)]
-            -- end
         end
     end
-
-    --if PaintTownMapUpdateCountdown == 0 then
-        --PaintTownMapUpdateCountdown = 24
-    --end
 
     if (timerResults ~= nil) then timer.resume(timerResults) end
     if (debugLocal) then print("grid done or skipped") end
@@ -304,7 +185,6 @@ local function UpdateLocalOptimized()
         directionArrow.rotation = currentHeading
     end
 
-
     --11 and 10 here seem to get me aligned on the center square. 
     local shift = CODE_ALPHABET_:find(currentPlusCode:sub(11, 11)) - 11
     local shift2 = CODE_ALPHABET_:find(currentPlusCode:sub(10, 10)) - 10
@@ -316,19 +196,7 @@ local function UpdateLocalOptimized()
         directionArrow.y = display.contentCenterY - (shift2 * 10) + 5
     end
 
-    --if (instanceID == 1) then
-        --personalScore.text = "My Weekly Contribution: " .. WeeklyPoints()
-    --elseif (instanceID == 2)  then
     personalScore.text = "Paint The Town Score: " .. AllTimePoints()
-    --end
-
-    -- locationText:toFront()
-    -- scoreText:toFront()
-    -- timeText:toFront()
-    -- directionArrow:toFront()
-    -- locationName:toFront()
-    -- swapInstance:toFront()
-    -- personalScore:toFront()
 
     if (debugLocal) then print("end updateLocalOptimized") end
 end
@@ -357,17 +225,9 @@ function scene:create(event)
     directionArrow = display.newImageRect(sceneGroup, "themables/arrow1.png", 16, 20)
     directionArrow.x = display.contentCenterX
     directionArrow.y = display.contentCenterY
-    directionArrow.anchorX = .5 --Hmm. 0 looks right on BigGrid= true. .5 looks better on BigGrid = false.
+    directionArrow.anchorX = .5  --0 looks right on BigGrid= true. .5 looks better on BigGrid = false.
     directionArrow.anchorY = .5
     directionArrow:toFront()
-
-    print(1)
-
-    -- header = display.newImageRect(sceneGroup, "themables/PaintTown.png",300, 100)
-    -- header.x = display.contentCenterX
-    -- header.y = 100
-    -- header:addEventListener("tap", GoToSceneSelect)
-    -- header:toFront()
 
     zoom = display.newImageRect(sceneGroup, "themables/ToggleZoom.png", 100, 100)
     zoom.anchorX = 0
@@ -376,17 +236,8 @@ function scene:create(event)
     zoom:addEventListener("tap", ToggleZoom)
     zoom:toFront()
 
-    print(2)
-    -- swapInstance = display.newImageRect(sceneGroup, "themables/SwitchMode.png", 100, 100)
-    -- swapInstance.anchorX = 0
-    -- swapInstance.x = 550
-    -- swapInstance.y = 100
-    -- swapInstance:addEventListener("tap", switchMode)
-    -- swapInstance:toFront()
-
     reorderUI()    
 
-    print(3)
     if (debug) then
         debugText = display.newText(sceneGroup, "location data", display.contentCenterX, 1180, 600, 0, native.systemFont, 22)
         debugText:toFront()
@@ -402,11 +253,9 @@ function reorderUI()
     zoom:toFront()
 
     locationText:toFront()
-    --scoreText:toFront()
     timeText:toFront()
     directionArrow:toFront()
     locationName:toFront()
-    --swapInstance:toFront()
     personalScore:toFront()
 end
 
@@ -421,10 +270,8 @@ function scene:show(event)
     elseif (phase == "did") then
         -- Code here runs when the scene is entirely on screen 
         timerResults = timer.performWithDelay(200, UpdateLocalOptimized, -1)
-        --timerResultsScoreboard = timer.performWithDelay(2500, GetScoreboard, -1)
         if (debugGPS) then timer.performWithDelay(500, testDrift, -1) end
         reorderUI()
-        --GetTeamAssignment() --done on loading screen.
     end
     if (debug) then print("showed painttown scene") end
 end
@@ -437,8 +284,6 @@ function scene:hide(event)
     if (phase == "will") then
         timer.cancel(timerResults)
         timerResults = nil
-        timer.cancel(timerResultsScoreboard)
-        timerResultsScoreboard = nil
     elseif (phase == "did") then
         -- Code here runs immediately after the scene goes entirely off screen
     end

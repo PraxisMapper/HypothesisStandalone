@@ -31,23 +31,6 @@ function upgradeDatabaseVersion(oldDBversion)
    Exec("UPDATE systemData SET dbVersionID = " .. dbVersionID)
 end
 
-function ResetDatabase()
-    localDb:close()
-    path = system.pathForFile("userData.sqlite", system.DocumentsDirectory)
-    localDb = sqlite3.open(path)
-    localDb:exec("drop table test")
-    localDb:exec("drop table plusCodesVisited")
-    localDb:exec("drop table acheivements")
-    localDb:exec("drop table playerData")
-    localDb:exec("drop table systemData")
-    localDb:exec("drop table weeklyVisited")
-    localDb:exec("drop table dailyVisited")
-    localDb:exec("drop table trophysBought")
-    localDb:exec("drop table areasOwned")
-    localDb:close()
-    startDatabase()
-end
-
 function Query(sql)
     --print("querying" .. sql)
     results = {}
