@@ -132,11 +132,15 @@ local function UpdateLocalOptimized()
         thisSquaresPluscode = shiftCell(thisSquaresPluscode, cellCollection[square].gridY, 7)
         cellCollection[square].pluscode = thisSquaresPluscode
         plusCodeNoPlus = removePlus(thisSquaresPluscode):sub(1, 8)
+        plusCodeSix = plusCodeNoPlus:sub(1,6)
+        plusCodeTwo = plusCodeNoPlus:sub(7,8)
+
 
                 cellCollection[square].fill = {0, 0} -- required to make Solar2d actually update the texture.
                 local paint = {
                     type = "image",
-                    filename = "Tiles/" ..plusCodeNoPlus .. ".pngTile", --TODO: does fixing this slash from \\ to / make tiles work on android?
+                    --filename = "Tiles/" ..plusCodeNoPlus .. ".pngTile",
+                    filename = "Tiles/" ..plusCodeSix .. "/" .. plusCodeTwo .. ".pngTile", --TODO: does fixing this slash from \\ to / make tiles work on android?
                     baseDir = system.ResourceDirectory
                 }
                 cellCollection[square].fill = paint

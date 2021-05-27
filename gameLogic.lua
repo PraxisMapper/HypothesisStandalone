@@ -39,23 +39,23 @@ function grantPoints(code)
             local query2 = Query(sql2)
             -- if (debug) then print("updating existing data") end
             for i, row in ipairs(query2) do
-                print(dump(row))
+                --print(dump(row))
                 local timeValue = os.time()
                 local dailyReset = row[5]
                 local weeklyReset = row[6]
-                print(dailyReset)
-                print("values set")
+                --print(dailyReset)
+                --print("values set")
                 if (tonumber(dailyReset) < timeValue) then
-                    print("bonk1")
+                    --print("bonk1")
                     dailyReset = timeValue + 79200 -- 22 hours
                     addPoints = addPoints + 1
                 end
                 if (tonumber(weeklyReset) < timeValue) then
-                    print("bonk2")
+                    --print("bonk2")
                     weeklyReset = timeValue + (79200 * 7) -- 6.5 days
                     addPoints = addPoints + 10
                 end
-                print("ready to update")
+                --print("ready to update")
                 local update = "UPDATE plusCodesVisited SET lastVisit = " ..
                                    os.time() .. ", nextDailyBonus = " ..
                                    dailyReset .. ", nextWeeklyBonus = " ..
@@ -65,7 +65,7 @@ function grantPoints(code)
             end
         end
     end
-    if (debug) then print("grant query 1 done") end
+    if (debug) then print("grant query done") end
 
     -- --check 3: this our first visit today?
     -- query = "SELECT COUNT(*) as c FROM dailyVisited WHERE pluscode = '" .. code .. "'"

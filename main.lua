@@ -100,7 +100,11 @@ function gpsListener(event)
         lastScoreLog = "Earned " .. grantPoints(plusCodeNoPlus) .. " points from cell " .. plusCodeNoPlus
         
         --Scavenger Hunt: Mark this area as visited
-        local terrainInfo = LoadTerrainData(currentPlusCode)
+        print("checking scavenger hunts")
+        --print("forcing ourselves to a hunt spot for testing")
+        --plusCodeNoPlus = "86HWGGGJFR"
+        local terrainInfo = LoadTerrainData(plusCodeNoPlus)
+        print(dump(terrainInfo))
         if (#terrainInfo > 1) then
             local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE OsmElementId = " .. terrainInfo[3]
             Exec(cmd)
@@ -147,7 +151,10 @@ print("shifting to loading scene")
 composer.gotoScene("SceneSelect")
 --composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
-currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+--currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+currentPlusCode = "86HWGGGJ+FR" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+
+
 
 local function myUnhandledErrorListener( event )
  
@@ -163,3 +170,15 @@ local function myUnhandledErrorListener( event )
 end
  
 Runtime:addEventListener("unhandledError", myUnhandledErrorListener)
+
+local function FakeGpsEvent()
+    
+end
+
+local function testDrift()
+    if (os.time() % 2 == 0) then
+        currentPlusCode = shiftCell(currentPlusCode, 1, 9) -- move north if 1, south if -1
+    else
+        currentPlusCode = shiftCell(currentPlusCode, -1, 10) -- move east if 1, west if -1
+    end
+end

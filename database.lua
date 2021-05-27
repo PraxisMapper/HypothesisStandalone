@@ -143,6 +143,7 @@ function LoadTerrainData(pluscode) --plus code does not contain a + here
     local query = "SELECT * from TerrainInfo ti INNER JOIN TerrainData td on td.OsmElementId = ti.terrainDataId WHERE ti.PlusCode = '" .. pluscode .. "'"
     --Now looks like TIid|PlusCode|OsmElementID|TDid|Name|AreatypeName|OsmElementID|OsmElementType
     local results = Query(query)
+    --print(query)
     --print(dump(results))
     
     for i,row in ipairs(results) do
