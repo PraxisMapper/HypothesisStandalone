@@ -4,6 +4,7 @@ PraxisMapper's Offline Mobile Game shell.
 Hypothesis Standalone is a demo of some single player location-based games you could build on with PraxisMapper.
 Current modes include:
 * Paint the Town (walk around, covering area to get points. Bonus points for daily or weekly visits to the same cells)
+* Scavenger Hunt (Lists of all places of a certain type. Color changes from red to green when you walk in a cell for that area)
 
 To make your own mobile game with this:
 * Download this source code to your PC
