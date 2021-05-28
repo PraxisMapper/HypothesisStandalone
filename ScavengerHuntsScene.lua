@@ -23,9 +23,9 @@ end
 
 local function innerTabPressed(event)
     --local sceneGroup = self.view
-    print(event)
-    print(event.target)
-    print(event.target.id)
+    --print(event)
+    --print(event.target)
+    --print(event.target.id)
 
     --Remove any existing items.
     for i,v in ipairs(thingsOnScreen) do
@@ -33,15 +33,15 @@ local function innerTabPressed(event)
     end
     thingsOnScreen = {}
 
-    local query = "SELECT * FROM ScavengerHunts WHERE listName = '" .. event.target.id .. "'"
-    print(query)
+    local query = "SELECT * FROM ScavengerHunts WHERE listName = '" .. event.target.id .. "' ORDER BY playerHasVisited DESC, description "
+    --print(query)
     local results = Query(query)
-    print(#results)
-    print("things to list")
+    --print(#results)
+    --print("things to list")
     --local height = #results * 50
-print(1)
+--print(1)
     --scrollView:removeSelf()
-    print(2)
+    --print(2)
     -- scrollView = widget.newScrollView(
     --     {
     --         top = 200,
@@ -50,12 +50,12 @@ print(1)
     --         height = 1080
     --     }
     -- )
-    print(3)
+    --print(3)
     --sceneGroup:insert(scrollView)
-    print(4)
+    --print(4)
 
     for i,s in ipairs(results) do
-        print(dump(s))
+        --print(dump(s))
         local textEntry = display.newText(scrollView, s[3], 25, i * 50, native.systemFont, 35)
         textEntry.anchorX = 0
         if (s[4] == 1) then
@@ -63,9 +63,9 @@ print(1)
         else
             textEntry:setFillColor(.7, 0, 0)
         end
-        print("A")
+        --print("A")
         thingsOnScreen[i] = textEntry
-        print("B")
+        --print("B")
         scrollView:insert(textEntry)
     end
 
