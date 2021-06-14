@@ -37,6 +37,7 @@ local debugText = {}
 local locationName = ""
 local timeText = ""
 local personalScore = ""
+local header = ""
 
 local zoom = ""
 
@@ -216,12 +217,17 @@ function scene:create(event)
 
     sceneGroup:insert(ctsGroup)
 
-    locationText = display.newText(sceneGroup, "Current location:" .. currentPlusCode, display.contentCenterX, 100, native.systemFont, 20)
-    timeText = display.newText(sceneGroup, "Current time:" .. os.date("%X"), display.contentCenterX, 120, native.systemFont, 20)
-    personalScore = display.newText(sceneGroup, "Paint The Town Score: ", display.contentCenterX, 160, native.systemFont, 20)
-    locationName = display.newText(sceneGroup, "", display.contentCenterX, 140, native.systemFont, 20)
-    
+    locationText = display.newText(sceneGroup, "Current location:" .. currentPlusCode, display.contentCenterX, 160, native.systemFont, 20)
+    timeText = display.newText(sceneGroup, "Current time:" .. os.date("%X"), display.contentCenterX, 180, native.systemFont, 20)
+    personalScore = display.newText(sceneGroup, "Paint The Town Score: ", display.contentCenterX, 200, native.systemFont, 20)
+    locationName = display.newText(sceneGroup, "", display.contentCenterX, 220, native.systemFont, 20)
 
+    header = display.newImageRect(sceneGroup, "themables/PaintTown.png", 300, 100)
+    header.x = display.contentCenterX
+    header.y = 80
+    header:addEventListener("tap", GoToSceneSelect)
+    header:toFront()
+    
     CreateRectangleGrid(3, 320, 400, sceneGroup, cellCollection) -- rectangular Cell11 grid with map tiles
     CreateRectangleGrid(60, 16, 20, ctsGroup, CellTapSensors, "painttown") -- rectangular Cell11 grid  with color fill
 
@@ -235,7 +241,7 @@ function scene:create(event)
     zoom = display.newImageRect(sceneGroup, "themables/ToggleZoom.png", 100, 100)
     zoom.anchorX = 0
     zoom.x = 50
-    zoom.y = 100
+    zoom.y = 80
     zoom:addEventListener("tap", ToggleZoom)
     zoom:toFront()
 
@@ -260,6 +266,7 @@ function reorderUI()
     directionArrow:toFront()
     locationName:toFront()
     personalScore:toFront()
+    header:toFront()
 end
 
 function scene:show(event)

@@ -13,7 +13,6 @@ function startDatabase()
     -- Handle the "applicationExit" event to close the database
     local function onSystemEvent(event)
         if (event.type == "applicationExit" and localDb:isopen()) then localDb:close() end
-        if (event.type == "applicationExit" and masterDb:isopen()) then masterDb:close() end
     end
 
     Runtime:addEventListener("system", onSystemEvent)
@@ -140,12 +139,13 @@ end
 
 function LoadTerrainData(pluscode) --plus code does not contain a + here
     if (debugDB) then print("loading terrain data ") end
-    local query = "SELECT * from TerrainInfo ti INNER JOIN TerrainData td on td.OsmElementId = ti.terrainDataId WHERE ti.PlusCode = '" .. pluscode .. "'"
-    --Now looks like TIid|PlusCode|OsmElementID|TDid|Name|AreatypeName|OsmElementID|OsmElementType
+    local query = "SELECT * from TerrainInfo ti INNER JOIN TerrainDataSmall td on td.terrainInfoid = ti.id WHERE ti.PlusCode = '" .. pluscode .. "'"
+    --Now looks like TIid|PlusCode|TDid|Name|AreatypeName --removed |OsmElementID|OsmElementType
     local results = Query(query)
     --print(query)
     --print(dump(results))
     
+    --I think I want this to return results now, not the first row.
     for i,row in ipairs(results) do
         if (debugDB) then print(dump(row)) end
         return row

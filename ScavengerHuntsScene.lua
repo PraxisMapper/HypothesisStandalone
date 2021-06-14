@@ -22,11 +22,6 @@ local function GoToSceneSelect()
 end
 
 local function innerTabPressed(event)
-    --local sceneGroup = self.view
-    --print(event)
-    --print(event.target)
-    --print(event.target.id)
-
     --Remove any existing items.
     for i,v in ipairs(thingsOnScreen) do
         scrollView:remove(v)
@@ -36,23 +31,6 @@ local function innerTabPressed(event)
     local query = "SELECT * FROM ScavengerHunts WHERE listName = '" .. event.target.id .. "' ORDER BY playerHasVisited DESC, description "
     --print(query)
     local results = Query(query)
-    --print(#results)
-    --print("things to list")
-    --local height = #results * 50
---print(1)
-    --scrollView:removeSelf()
-    --print(2)
-    -- scrollView = widget.newScrollView(
-    --     {
-    --         top = 200,
-    --         left = 0, 
-    --         width = 720,
-    --         height = 1080
-    --     }
-    -- )
-    --print(3)
-    --sceneGroup:insert(scrollView)
-    --print(4)
 
     for i,s in ipairs(results) do
         --print(dump(s))
@@ -68,6 +46,8 @@ local function innerTabPressed(event)
         --print("B")
         scrollView:insert(textEntry)
     end
+
+    scrollView:scrollTo("top", {time = 0})
 
      
 end

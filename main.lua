@@ -21,7 +21,7 @@ forceRedraw = false --used to tell the screen to redraw even if we havent moved.
 
 debug = true --set false for release builds. Set true for lots of console info being dumped. Must be global to apply to all files.
 debugGPS = false --display data for the GPS event and timer loop and auto-move
-debugDB = false
+debugDB = true
 debugLocal = true
 debugNetwork = false
 debugSpin = false
@@ -105,11 +105,12 @@ function gpsListener(event)
         --plusCodeNoPlus = "86HWGGGJFR"
         local terrainInfo = LoadTerrainData(plusCodeNoPlus)
         print(dump(terrainInfo))
-        if (#terrainInfo > 1) then
-            local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE OsmElementId = " .. terrainInfo[3]
+        if (#terrainInfo > 1) then --this should be a foreach loop now.
+            --local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE OsmElementId = " .. terrainInfo[3]
+            local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = " .. terrainInfo[5]
             Exec(cmd)
         end
-
+    print("done with scavenger hunt check")
         lastPlusCode = currentPlusCode
     end
 
