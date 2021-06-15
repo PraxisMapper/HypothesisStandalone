@@ -98,3 +98,40 @@ function copyFile(srcName, srcPath, dstName, dstPath, overwrite)
 
    return results
 end
+
+function CalcPresent(myLat, myLon, placeInfo)
+    --EXTREMELY simple distance calculation. Not remotely concerned with errors on this estimate at this point
+    --print("a")
+    local distanceLat = math.abs(myLat - placeInfo[3])
+    local distanceLon = math.abs(myLon - placeInfo[4])
+    local distancePythag = distanceLat * distanceLat + distanceLon * distanceLon
+    local distanceDegrees = math.sqrt(distancePythag)
+    --print("B")
+    --print("Distance from " .. placeInfo[2] .. " is " .. distanceDegrees)
+    --print("radius for this place is " .. placeInfo[5])
+    --print("distance in miles is " .. DistanceInMiles(distanceLat, distanceLon))
+
+    if (placeInfo[5] == 0) then
+        placeInfo[5] = .000125 --treat as a Cell10, but also allows claiming from being adjacent to it
+    end
+    --print("c")
+
+    if distancePythag <= placeInfo[5] then
+        --print("d")
+        return true
+    end
+
+    return false
+end
+
+function DistanceInMiles(degreesAwayLat, degreesAwayLon)
+
+    local milesAwayLat = degreesAwayLat * 69 --easy, lazy.
+    local milesAwayLon = degreesAwayLon * math.cos(math.rad(degreesAwayLat)) * 69
+
+    --and then pythag these values up for a straight-line estimate.
+    local distancePythag = milesAwayLat * milesAwayLat + milesAwayLon * milesAwayLon
+    local distanceMiles = math.sqrt(distancePythag)
+    
+    return distanceMiles
+end

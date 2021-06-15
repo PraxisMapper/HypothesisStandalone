@@ -105,6 +105,7 @@ local function UpdateLocalOptimized()
         return
     end
 
+    print(1)
     if (debug) then debugText.text = dump(lastLocationEvent) end
 
     local plusCodeNoPlus = removePlus(currentPlusCode)
@@ -117,13 +118,17 @@ local function UpdateLocalOptimized()
         innerForceRedraw = true
     end
     previousPlusCode = currentPlusCode
+    print(2)
     
     -- draw this place's name on screen, or an empty string if its not a place.
-    local terrainInfo = LoadTerrainData(plusCodeNoPlus) -- terrainInfo is a whole row from the DB.
-    locationName.text = terrainInfo[5] --name
-    if locationName.text == "" then
-        locationName.text = terrainInfo[6] --area type name
-    end
+    --TODO: this no longer needs TerrainData, this should get set by the location handler and read here.
+    -- local terrainInfo = LoadTerrainData(plusCodeNoPlus:sub(codeTrim + 1, 10)) -- terrainInfo is a whole row from the DB.
+    -- print(1)
+    -- locationName.text = terrainInfo[5] --name
+    -- if locationName.text == "" then
+    --     locationName.text = terrainInfo[6] --area type name
+    -- end
+    locationName.text = currentLocationName
     
     if (innerForceRedraw == false) then -- none of this needs to get processed if we haven't moved and there's no new maptiles to refresh.
     for square = 1, #cellCollection do

@@ -21,7 +21,7 @@ forceRedraw = false --used to tell the screen to redraw even if we havent moved.
 
 debug = true --set false for release builds. Set true for lots of console info being dumped. Must be global to apply to all files.
 debugGPS = false --display data for the GPS event and timer loop and auto-move
-debugDB = true
+debugDB = false
 debugLocal = true
 debugNetwork = false
 debugSpin = false
@@ -33,9 +33,12 @@ print(dataPath)
 if (not doesFileExist("database.sqlite", system.DocumentsDirectory)) then   
     print("copying user database")
     copyFile("database.sqlite", system.ResourceDirectory, "database.sqlite", system.DocumentsDirectory, false)
+    print("copied")
 end
 
 
+--commonCodeLetters = GetCommonLetters()
+--codeTrim = #commonCodeLetters
 startDatabase()
 
 currentPlusCode = "" -- where the user is sitting now
@@ -44,6 +47,7 @@ previousPlusCode = ""  --the previous DIFFERENT pluscode value we visited.
 currentHeading = 0
 lastScoreLog = ""
 lastLocationEvent = ""
+currentLocationName = ""
 
 tappedAreaName = ""
 tappedAreaScore = 0
@@ -90,6 +94,7 @@ function gpsListener(event)
     if (debugGPS) then print ("Plus Code: " .. pluscode) end
     currentPlusCode = pluscode
     local plusCode8 = currentPlusCode:sub(0,8)
+    local plusCode6 = currentPlusCode:sub(0,6)
     local plusCodeNoPlus = removePlus(currentPlusCode)
 
     if (lastPlusCode ~= currentPlusCode) then
@@ -98,18 +103,62 @@ function gpsListener(event)
         --PaintTheTown: mark this as visited and update times for daily/weekly bonuses in grantPoints
         if(debugGPS) then print("calculating score") end
         lastScoreLog = "Earned " .. grantPoints(plusCodeNoPlus) .. " points from cell " .. plusCodeNoPlus
-        
-        --Scavenger Hunt: Mark this area as visited
-        print("checking scavenger hunts")
-        --print("forcing ourselves to a hunt spot for testing")
-        --plusCodeNoPlus = "86HWGGGJFR"
-        local terrainInfo = LoadTerrainData(plusCodeNoPlus)
-        print(dump(terrainInfo))
-        if (#terrainInfo > 1) then --this should be a foreach loop now.
-            --local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE OsmElementId = " .. terrainInfo[3]
-            local cmd = "UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = " .. terrainInfo[5]
-            Exec(cmd)
+
+                --Scavenger Hunt: Mark this area as visited
+                print("checking scavenger hunts")
+        --print(1)        
+
+        --test values
+        -- local placeInfoList = GetPlacesInCell6("86HWHH")
+        -- print(#placeInfoList)
+        -- --print(dump(placeInfoList)) --should be a list of placeInfoIds
+        -- for i, v in ipairs(placeInfoList) do
+        --     local asdf = CalcPresent(41.56406, -81.43278, v)
+        --     if (asdf) then
+        --         print("AHAH")
+        --         print("place present: " .. v[2])
+        --         local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
+        --         Exec(cmd)
+        --     end
+        --     local isPresent = CalcPresent(event.latitude, event.longitude, v)
+        --     if (isPresent) then
+        --         print("place present: " .. v[2])
+        --     end
+        -- end
+
+        --Speedup check: get all non-trail areas to check distance on.
+        local placeInfoList = GetPlacesInCell6(plusCode6)
+        --print(2)
+        --print(dump(placeInfoList)) --should be a list of placeInfoIds
+        for i, v in ipairs(placeInfoList) do
+            local asdf = CalcPresent(41.56406, -81.43278, v)
+            print(asdf)
+            local isPresent = CalcPresent(event.latitude, event.longitude, v)
+            if (isPresent) then
+                
+                currentLocationName = v[2]
+                local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
+                Exec(cmd)
+            end
         end
+
+        --test check
+        
+
+        --print(3)
+        -- now check for trails.
+        local trail = GetTrail(plusCodeNoPlus)
+        --print(4)
+        if (#trail >= 1) then
+            --check off the trail(s) from the scavenger hunt list
+            for i,v in ipairs(trail) do
+                local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[1] .. '"'
+                Exec(cmd)
+            end
+
+        end
+
+    
     print("done with scavenger hunt check")
         lastPlusCode = currentPlusCode
     end

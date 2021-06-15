@@ -1,9 +1,28 @@
 --NOTE: on android, clearing app data doesnt' delete the database, just contents of it, apparently.
+--Since the database for a county is so big, and mobile SQLite only opens 1 DB at once, I might
+--need to have each function open and close the appropriate DB on each call.
 require("helpers")
 
 local sqlite3 = require("sqlite3") 
-localDb = ""
-local dbVersionID = 10
+localDb = "" --SQLite only lets you use 1 DB at a time so may as well share the actual variable. Now that its small again, going to go back to copying it locally
+local localDbPath = system.pathForFile("database.sqlite", system.DocumentsDirectory)
+--dataDb = ""
+--local dataDbPath = system.pathForFile("database.sqlite", system.ResourceDirectory)
+local dbVersionID = 1
+
+--The read-write one
+function openLocal()
+    localDb = sqlite3.open(localDbPath)
+end
+
+--the readonly one.
+-- function openData()
+--     localDb = sqlite3.open(dataDbPath)
+-- end
+
+local function closeDb()
+    localDb:close()
+end
 
 function startDatabase()
     --localDb is the one we write data to.
@@ -31,7 +50,7 @@ function upgradeDatabaseVersion(oldDBversion)
 end
 
 function Query(sql)
-    --print("querying" .. sql)
+    --print("querying " .. sql)
     results = {}
     local tempResults = localDb:rows(sql)
     --print("results got")
@@ -137,20 +156,39 @@ function Score()
     end
 end
 
+function GetCommonLetters()
+    openData()
+    local query = "SELECT commonCodeLetters from Bounds"
+    local results = SingleValueQuery(query)
+    closeDb()
+    return results
+end
+
 function LoadTerrainData(pluscode) --plus code does not contain a + here
     if (debugDB) then print("loading terrain data ") end
-    local query = "SELECT * from TerrainInfo ti INNER JOIN TerrainDataSmall td on td.terrainInfoid = ti.id WHERE ti.PlusCode = '" .. pluscode .. "'"
+    openData()
+    print(plusCode)
+    if (plusCode == nil) then
+        return {}
+    end 
+
+    --local query = "SELECT * FROM TerrainDataSmallTerrainInfo jointable INNER JOIN TerrainInfo ti on ti.id = jointable.TerrainInfoid INNER JOIN TerrainDataSmall td on td.id = jointable.TerrainDataSmallid WHERE ti.PlusCode = '" .. plusCode .. "'"
+    local query = "SELECT * FROM "
     --Now looks like TIid|PlusCode|TDid|Name|AreatypeName --removed |OsmElementID|OsmElementType
+    print(1)
+    print(query)
     local results = Query(query)
+    print(2)
     --print(query)
     --print(dump(results))
-    
+    --closeDb()
+    return results
     --I think I want this to return results now, not the first row.
-    for i,row in ipairs(results) do
-        if (debugDB) then print(dump(row)) end
-        return row
-    end 
-    return {} --empty table means no data found.
+    -- for i,row in ipairs(results) do
+    --     if (debugDB) then print(dump(row)) end
+    --     return row
+    -- end 
+    -- return {} --empty table means no data found.
 end
 
 --This shouldn't be used anymore since I keep all that data in memory now.
@@ -266,4 +304,30 @@ function SetEndDate(instanceID, endDate)
     local cmd = "UPDATE endDates SET endsAt = '" .. endDate .. "' WHERE instanceID = " .. instanceID
     --print(cmd)
     local updated = db:exec(cmd)
+end
+
+function GetPlacesInCell6(pluscode6)
+    local query = "SELECT pi.placeInfoid, pi2.name, pi2.latCenter, pi2.lonCenter, pi2.radius FROM PlaceIndexs pi INNER JOIN PlaceInfo2s pi2 on pi2.id == pi.placeInfoid WHERE pi.PlusCode = '" .. pluscode6 .. "' ORDER BY radius DESC"  --placeInfoId
+    --print(query)
+    --Schema:
+    -- placeInfoID |  Name | LatCenter | lonCenter | radius
+    local data = Query(query)
+    local results = {}
+    for i, v in ipairs(data) do
+        results[i] = v
+    end
+
+    print(dump(results))
+    return results
+end
+
+function GetTrail(pluscode)
+    --pluscode is 10 digits, no plus.
+    local query = [[SELECT tds.name FROM TerrainInfo ti 
+    INNER JOIN TerrainDataSmallTerrainInfo jointable on ti.id = jointable.TerrainInfoid 
+    INNER JOIN TerrainDataSmall tds on tds.id = jointable.TerrainDataSmallid 
+    WHERE ti.PlusCode = ']] .. pluscode .. "'"
+
+    local results = Query(query)
+    return results
 end
