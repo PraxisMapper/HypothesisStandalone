@@ -50,6 +50,11 @@ local function SwitchToScavengerHuntsScene()
     local options = {effect = "flip", time = 125}
     composer.gotoScene("ScavengerHuntsScene", options)
 end
+
+local function SwitchToInfodumpScene()
+    local options = {effect = "flip", time = 125}
+    composer.gotoScene("InfodumpScene", options)
+end
  
  
 -- -----------------------------------------------------------------------------------
@@ -100,6 +105,13 @@ function scene:create( event )
     changeScavengerHunts.x = 60
     changeScavengerHunts.y = 500
     changeScavengerHunts:addEventListener("tap", SwitchToScavengerHuntsScene)
+
+    local changeInfodump = display.newImageRect(sceneGroup, "themables/Infodump.png", 300, 100) --1P area tag
+    changeInfodump.anchorX = 0
+    changeInfodump.anchorY = 0
+    changeInfodump.x = 390
+    changeInfodump.y = 500
+    changeInfodump:addEventListener("tap", SwitchToInfodumpScene)
 
     -- local changeMPAreaControl = display.newImageRect(sceneGroup, "themables/MultiplayerAreaControl.png", 300, 100) --multiplayer area tag
     -- changeMPAreaControl.anchorX = 0

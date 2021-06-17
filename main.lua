@@ -98,6 +98,8 @@ function gpsListener(event)
     local plusCodeNoPlus = removePlus(currentPlusCode)
 
     if (lastPlusCode ~= currentPlusCode) then
+        currentLocationName = "" --clear out on move
+
         --Have this event handle all the DB updates for all game modes.
         --NOTE: this will require some extra logic for local debugging, since that previously was handled in game modes.
         --PaintTheTown: mark this as visited and update times for daily/weekly bonuses in grantPoints
@@ -106,34 +108,35 @@ function gpsListener(event)
 
                 --Scavenger Hunt: Mark this area as visited
                 print("checking scavenger hunts")
-        --print(1)        
+       -- print(1)        
 
         --test values
         -- local placeInfoList = GetPlacesInCell6("86HWHH")
         -- print(#placeInfoList)
         -- --print(dump(placeInfoList)) --should be a list of placeInfoIds
         -- for i, v in ipairs(placeInfoList) do
-        --     local asdf = CalcPresent(41.56406, -81.43278, v)
+        --     local asdf = CalcPresentRect(41.56406, -81.43278, v)
         --     if (asdf) then
         --         print("AHAH")
         --         print("place present: " .. v[2])
         --         local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
         --         Exec(cmd)
         --     end
-        --     local isPresent = CalcPresent(event.latitude, event.longitude, v)
+        --     local isPresent = CalcPresentRect(event.latitude, event.longitude, v)
         --     if (isPresent) then
         --         print("place present: " .. v[2])
         --     end
         -- end
+
+        -- print("Test check done")
 
         --Speedup check: get all non-trail areas to check distance on.
         local placeInfoList = GetPlacesInCell6(plusCode6)
         --print(2)
         --print(dump(placeInfoList)) --should be a list of placeInfoIds
         for i, v in ipairs(placeInfoList) do
-            local asdf = CalcPresent(41.56406, -81.43278, v)
-            print(asdf)
-            local isPresent = CalcPresent(event.latitude, event.longitude, v)
+            local asdf = CalcPresentRect(41.56406, -81.43278, v)
+            local isPresent = CalcPresentRect(event.latitude, event.longitude, v)
             if (isPresent) then
                 
                 currentLocationName = v[2]

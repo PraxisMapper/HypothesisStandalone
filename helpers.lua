@@ -99,7 +99,30 @@ function copyFile(srcName, srcPath, dstName, dstPath, overwrite)
    return results
 end
 
-function CalcPresent(myLat, myLon, placeInfo)
+function CalcPresentRect(myLat, myLon, placeInfo)
+    --If westLon < myLon < eastLon
+    --and southLat < myLat < northlat
+    --we are safely within the bounding box.
+    if(debug) then print("Calcing rectangle present") end
+    local widthMod = placeInfo[6] / 2
+    local westBound = placeInfo[4] - widthMod  
+    if westBound > myLon then  return false end
+    
+    local eastBound = placeInfo[4] + widthMod
+    if eastBound < myLon then return false end
+
+    local heightMod = placeInfo[7] / 2
+    local southBound = placeInfo[3] - heightMod
+    if southBound > myLat then  return false end
+    
+    local northBound = placeInfo[3] + heightMod
+    if northBound < myLat then  return false end
+
+    if (debug) then print("present: " .. placeInfo[2]) end
+    return true
+end
+
+function CalcPresentCircle(myLat, myLon, placeInfo)
     --EXTREMELY simple distance calculation. Not remotely concerned with errors on this estimate at this point
     --print("a")
     local distanceLat = math.abs(myLat - placeInfo[3])
