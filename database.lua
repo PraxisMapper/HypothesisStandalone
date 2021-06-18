@@ -307,11 +307,11 @@ function SetEndDate(instanceID, endDate)
 end
 
 function GetPlacesInCell6(pluscode6)
-    local query = "SELECT pi.placeInfoid, pi2.name, pi2.latCenter, pi2.lonCenter, pi2.radius, pi2.width, pi2.height FROM PlaceIndexs pi INNER JOIN PlaceInfo2s pi2 on pi2.id == pi.placeInfoid WHERE pi.PlusCode = '" .. pluscode6 .. "' ORDER BY radius DESC"  --placeInfoId
+    local query = "SELECT pi.placeInfoid, pi2.name, pi2.latCenter, pi2.lonCenter, pi2.width, pi2.height FROM PlaceIndexs pi INNER JOIN PlaceInfo2s pi2 on pi2.id == pi.placeInfoid WHERE pi.PlusCode = '" .. pluscode6 .. "' ORDER BY radius DESC"  --placeInfoId
     --print(query)
     --Schema:
-    --      1           2        3           4          5       6        7 
-    -- placeInfoID |  Name | LatCenter | lonCenter | radius | width | Height
+    --      1           2        3           4          5       6    
+    -- placeInfoID |  Name | LatCenter | lonCenter |  width | Height
     local data = Query(query)
     local results = {}
     for i, v in ipairs(data) do

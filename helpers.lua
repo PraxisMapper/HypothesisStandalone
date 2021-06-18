@@ -104,14 +104,14 @@ function CalcPresentRect(myLat, myLon, placeInfo)
     --and southLat < myLat < northlat
     --we are safely within the bounding box.
     if(debug) then print("Calcing rectangle present") end
-    local widthMod = placeInfo[6] / 2
+    local widthMod = placeInfo[5] / 2
     local westBound = placeInfo[4] - widthMod  
     if westBound > myLon then  return false end
     
     local eastBound = placeInfo[4] + widthMod
     if eastBound < myLon then return false end
 
-    local heightMod = placeInfo[7] / 2
+    local heightMod = placeInfo[6] / 2
     local southBound = placeInfo[3] - heightMod
     if southBound > myLat then  return false end
     
@@ -122,30 +122,30 @@ function CalcPresentRect(myLat, myLon, placeInfo)
     return true
 end
 
-function CalcPresentCircle(myLat, myLon, placeInfo)
-    --EXTREMELY simple distance calculation. Not remotely concerned with errors on this estimate at this point
-    --print("a")
-    local distanceLat = math.abs(myLat - placeInfo[3])
-    local distanceLon = math.abs(myLon - placeInfo[4])
-    local distancePythag = distanceLat * distanceLat + distanceLon * distanceLon
-    local distanceDegrees = math.sqrt(distancePythag)
-    --print("B")
-    --print("Distance from " .. placeInfo[2] .. " is " .. distanceDegrees)
-    --print("radius for this place is " .. placeInfo[5])
-    --print("distance in miles is " .. DistanceInMiles(distanceLat, distanceLon))
+-- function CalcPresentCircle(myLat, myLon, placeInfo)
+--     --EXTREMELY simple distance calculation. Not remotely concerned with errors on this estimate at this point
+--     --print("a")
+--     local distanceLat = math.abs(myLat - placeInfo[3])
+--     local distanceLon = math.abs(myLon - placeInfo[4])
+--     local distancePythag = distanceLat * distanceLat + distanceLon * distanceLon
+--     local distanceDegrees = math.sqrt(distancePythag)
+--     --print("B")
+--     --print("Distance from " .. placeInfo[2] .. " is " .. distanceDegrees)
+--     --print("radius for this place is " .. placeInfo[5])
+--     --print("distance in miles is " .. DistanceInMiles(distanceLat, distanceLon))
 
-    if (placeInfo[5] == 0) then
-        placeInfo[5] = .000125 --treat as a Cell10, but also allows claiming from being adjacent to it
-    end
-    --print("c")
+--     if (placeInfo[5] == 0) then
+--         placeInfo[5] = .000125 --treat as a Cell10, but also allows claiming from being adjacent to it
+--     end
+--     --print("c")
 
-    if distancePythag <= placeInfo[5] then
-        --print("d")
-        return true
-    end
+--     if distancePythag <= placeInfo[5] then
+--         --print("d")
+--         return true
+--     end
 
-    return false
-end
+--     return false
+-- end
 
 function DistanceInMiles(degreesAwayLat, degreesAwayLon)
 
