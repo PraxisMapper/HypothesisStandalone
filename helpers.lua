@@ -103,7 +103,7 @@ function CalcPresentRect(myLat, myLon, placeInfo)
     --If westLon < myLon < eastLon
     --and southLat < myLat < northlat
     --we are safely within the bounding box.
-    if(debug) then print("Calcing rectangle present") end
+    --if(debug) then print("Calcing rectangle present") end
     local widthMod = placeInfo[5] / 2
     local westBound = placeInfo[4] - widthMod  
     if westBound > myLon then  return false end

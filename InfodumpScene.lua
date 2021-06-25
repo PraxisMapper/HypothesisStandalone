@@ -32,12 +32,14 @@ function updateInfo()
         print(1)
         local placeInfoList = GetPlacesInCell6(currentPlusCode:sub(0,6))
         for i, v in ipairs(placeInfoList) do
-            print(dump(v))
+            --print(dump(v))
             local isPresent = CalcPresentRect(lastLocationEvent.latitude, lastLocationEvent.longitude, v)
             if (isPresent) then
                 placesIn = placesIn .. ", " .. v[2]
             end
         end
+        print(placesIn)
+        print(2)
 
         currentPlaces.text = "Currently in: " .. placesIn
         if (debug) then print("updated info") end
