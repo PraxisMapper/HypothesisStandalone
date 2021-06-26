@@ -138,7 +138,6 @@ function gpsListener(event)
             local asdf = CalcPresentRect(41.56406, -81.43278, v)
             local isPresent = CalcPresentRect(event.latitude, event.longitude, v)
             if (isPresent) then
-                
                 currentLocationName = v[2]
                 local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
                 Exec(cmd)
@@ -155,13 +154,12 @@ function gpsListener(event)
         if (#trail >= 1) then
             --check off the trail(s) from the scavenger hunt list
             for i,v in ipairs(trail) do
+                currentLocationName = v[1]
                 local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[1] .. '"'
                 Exec(cmd)
             end
-
         end
 
-    
     print("done with scavenger hunt check")
         lastPlusCode = currentPlusCode
     end

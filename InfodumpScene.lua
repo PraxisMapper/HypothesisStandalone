@@ -21,15 +21,15 @@ local scene = composer.newScene()
 end
 
 function updateInfo()
-    local query = "SELECT * FROM PlaceInfo2s WHERE ID = 1155"
-        local results = Query(query)
-        areaDump.text = dump(results[1])
+        --  local query = "SELECT * FROM PlaceInfo2s WHERE ID = 1155"
+        -- local results = Query(query)
+        -- areaDump.text = dump(results[1])
 
         locationDump.text = dump(lastLocationEvent)
         local placesIn = ""
 
-        print(currentPlusCode)
-        print(1)
+        --print(currentPlusCode)
+        --print(1)
         local placeInfoList = GetPlacesInCell6(currentPlusCode:sub(0,6))
         for i, v in ipairs(placeInfoList) do
             --print(dump(v))
@@ -38,8 +38,8 @@ function updateInfo()
                 placesIn = placesIn .. ", " .. v[2]
             end
         end
-        print(placesIn)
-        print(2)
+        --print(placesIn)
+        --print(2)
 
         currentPlaces.text = "Currently in: " .. placesIn
         if (debug) then print("updated info") end
@@ -67,9 +67,10 @@ function scene:create( event )
     locationDump = display.newText(sceneGroup, "location:", 50, 200, 600, 600, native.systemFont, 25)
     locationDump.anchorX = 0
     locationDump.anchorY = 0
-    areaDump = display.newText(sceneGroup, "areaInfo: ", 50, 500, 600, 600, native.systemFont, 25)
-    areaDump.anchorX = 0
-    areaDump.anchorY = 0
+
+    -- areaDump = display.newText(sceneGroup, "areaInfo: ", 50, 500, 600, 600, native.systemFont, 25)
+    -- areaDump.anchorX = 0
+    -- areaDump.anchorY = 0
 
     currentPlaces = display.newText(sceneGroup, "Currently in:", 50, 800, 600, 600, native.systemFont, 25)
     currentPlaces.anchorX = 0
