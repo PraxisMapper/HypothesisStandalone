@@ -65,6 +65,9 @@ cellDataCache = {}
 tapData = display.newText("Cell Tapped:", 20, 1250, native.systemFont, 20)
 tapData.anchorX = 0
 
+commonStartLetters = SingleValueQuery('SELECT commonCodeLetters FROM Bounds')
+
+
 print(system.getInfo("deviceID"))
 
 --OSM License Compliance. Do not remove this line.
@@ -135,10 +138,14 @@ function gpsListener(event)
         --print(2)
         --print(dump(placeInfoList)) --should be a list of placeInfoIds
         for i, v in ipairs(placeInfoList) do
-            local asdf = CalcPresentRect(41.56406, -81.43278, v)
+            --local asdf = CalcPresentRect(41.56406, -81.43278, v)
             local isPresent = CalcPresentRect(event.latitude, event.longitude, v)
             if (isPresent) then
-                currentLocationName = v[2]
+                if (v[2] ~= '') then
+                    currentLocationName = v[2]
+                else
+                    currentLocationName = v[7]
+                end
                 local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
                 Exec(cmd)
             end
@@ -148,8 +155,10 @@ function gpsListener(event)
         
 
         --print(3)
-        -- now check for trails.
-        local trail = GetTrail(plusCodeNoPlus)
+        -- now check for trails. This ignores the common 
+        --print(commonStartLetters)
+        --print(string.len(commonStartLetters))
+        local trail = GetTrail(plusCodeNoPlus:sub(commonStartLetters:len()))
         --print(4)
         if (#trail >= 1) then
             --check off the trail(s) from the scavenger hunt list
@@ -203,7 +212,6 @@ composer.gotoScene("SceneSelect")
 --composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 --currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
-currentPlusCode = "86HWGGGJ+FR" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 
 
 
