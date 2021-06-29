@@ -55,6 +55,16 @@ local function SwitchToInfodumpScene()
     local options = {effect = "flip", time = 125}
     composer.gotoScene("InfodumpScene", options)
 end
+
+local function SwitchToIdleScene()
+    local options = {effect = "flip", time = 125}
+    composer.gotoScene("IdleScene", options)
+end
+
+local function SwitchToCCScene()
+    local options = {effect = "flip", time = 125}
+    composer.gotoScene("CreatureCollectorScene", options)
+end
  
  
 -- -----------------------------------------------------------------------------------
@@ -85,32 +95,32 @@ function scene:create( event )
     -- change8grid11Image.y = 100
     -- change8grid11Image:addEventListener("tap", SwitchTo8GridScene11Image)
 
-    -- local changeGrid = display.newImageRect(sceneGroup, "themables/SmallGridButton.png", 300, 100) -- no tiles test
-    -- changeGrid.anchorX = 0
-    -- changeGrid.anchorY = 0
-    -- changeGrid.x = 60
-    -- changeGrid.y = 300
-    -- changeGrid:addEventListener("tap", SwitchTo10GridScene)
+    local changeIdle = display.newImageRect(sceneGroup, "themables/idleGame.png", 300, 100)
+    changeIdle.anchorX = 0
+    changeIdle.anchorY = 0
+    changeIdle.x = 60
+    changeIdle.y = 300
+    changeIdle:addEventListener("tap", SwitchToIdleScene)
 
-    -- local change10Grid11Image = display.newImageRect(sceneGroup, "themables/10cell11image.png", 300, 100) --hires small tiles test
-    -- change10Grid11Image.anchorX = 0
-    -- change10Grid11Image.anchorY = 0
-    -- change10Grid11Image.x = 390
-    -- change10Grid11Image.y = 300
-    -- change10Grid11Image:addEventListener("tap", SwitchTo10Grid11ImageScene)
+    local changeCC = display.newImageRect(sceneGroup, "themables/creatureCollector.png", 300, 100) 
+    changeCC.anchorX = 0
+    changeCC.anchorY = 0
+    changeCC.x = 390
+    changeCC.y = 300
+    changeCC:addEventListener("tap", SwitchToCCScene)
 
-    local changeScavengerHunts = display.newImageRect(sceneGroup, "themables/ScavengerHunts.png", 300, 100) --1P area tag
+    local changeScavengerHunts = display.newImageRect(sceneGroup, "themables/ScavengerHunts.png", 300, 100)
     changeScavengerHunts.anchorX = 0
     changeScavengerHunts.anchorY = 0
     changeScavengerHunts.x = 60
     changeScavengerHunts.y = 500
     changeScavengerHunts:addEventListener("tap", SwitchToScavengerHuntsScene)
 
-    local changeInfodump = display.newImageRect(sceneGroup, "themables/Infodump.png", 300, 100) --1P area tag
+    local changeInfodump = display.newImageRect(sceneGroup, "themables/Infodump.png", 300, 100) 
     changeInfodump.anchorX = 0
     changeInfodump.anchorY = 0
-    changeInfodump.x = 390
-    changeInfodump.y = 500
+    changeInfodump.x = 60 
+    changeInfodump.y = 700
     changeInfodump:addEventListener("tap", SwitchToInfodumpScene)
 
     -- local changeMPAreaControl = display.newImageRect(sceneGroup, "themables/MultiplayerAreaControl.png", 300, 100) --multiplayer area tag
@@ -123,8 +133,8 @@ function scene:create( event )
     local changePaintTown = display.newImageRect(sceneGroup, "themables/PaintTown.png", 300, 100) --paint the town
     changePaintTown.anchorX = 0
     changePaintTown.anchorY = 0
-    changePaintTown.x = 60
-    changePaintTown.y = 700
+    changePaintTown.x = 390
+    changePaintTown.y = 500
     changePaintTown:addEventListener("tap", SwitchToPaintTownScene)
 
     local changeSettings = display.newImageRect(sceneGroup, "themables/Settings.png", 300, 100) -- settings
