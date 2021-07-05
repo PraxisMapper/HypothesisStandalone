@@ -157,7 +157,7 @@ function gpsListener(event)
         -- now check for trails. This ignores the common 
         --print(commonStartLetters)
         --print(string.len(commonStartLetters))
-        local trail = GetTrail(plusCodeNoPlus:sub(commonStartLetters:len()))
+        local trail = GetTrail(removePlus(currentPlusCode):sub(commonStartLetters:len()+1))
         --print(4)
         if (#trail > 0) then
             --check off the trail(s) from the scavenger hunt list
@@ -211,7 +211,7 @@ composer.gotoScene("SceneSelect")
 --composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 --currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
-currentPlusCode = "86HWHH88+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+currentPlusCode = "86HWHH88+3Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 
 
 

@@ -41,7 +41,7 @@ function updateInfo()
         --print(placesIn)
         --print(2)
 
-        local trails = GetTrail(plusCodeNoPlus:sub(commonStartLetters:len()))
+        local trails = GetTrail(removePlus(currentPlusCode):sub(commonStartLetters:len()+1))
         if (#trails) > 0 then
             for i,v in ipairs(trail) do
                 placesIn = placesIn .. "," .. v[1]
