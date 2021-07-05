@@ -41,6 +41,13 @@ function updateInfo()
         --print(placesIn)
         --print(2)
 
+        local trails = GetTrail(plusCodeNoPlus:sub(commonStartLetters:len()))
+        if (#trails) > 0 then
+            for i,v in ipairs(trail) do
+                placesIn = placesIn .. "," .. v[1]
+            end
+        end
+
         currentPlaces.text = "Currently in: " .. placesIn
         if (debug) then print("updated info") end
         --if keepLooping then
