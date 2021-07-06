@@ -211,7 +211,7 @@ composer.gotoScene("SceneSelect")
 --composer.gotoScene("loadingScene")
 --currentPlusCode = "87G8Q2JM+F9" --central park, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 --currentPlusCode = "86HWG94W+2Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
-currentPlusCode = "86HWHH88+3Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
+--currentPlusCode = "86HWHH88+3Q" --CWRU, simulator purposes --TODO remember to disable this for iOS app store submission, it confuses their testers.
 
 
 

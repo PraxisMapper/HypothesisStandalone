@@ -181,15 +181,14 @@ local function UpdateLocalOptimized()
                 CellTapSensors[square].fill = visitedCell
             end
 
-            local debugTrails = true
+            local debugTrails = false
             if (debugTrails) then
                 trail = GetTrail(idCheck:sub(commonStartLetters:len()+1))
                 if (#trail > 0) then
-                    --print("trail!")
                     CellTapSensors[square].fill = {.5, .2, .2, .6}
                 end
             end
-            --print("debugged trails")
+
         end
     end
 
@@ -237,19 +236,15 @@ function scene:create(event)
 
     locationText = display.newText(sceneGroup,
                                    "Current location:" .. currentPlusCode,
-                                   display.contentCenterX, 160,
-                                   native.systemFont, 20)
+                                   display.contentCenterX, 160, native.systemFont, 20)
     timeText = display.newText(sceneGroup, "Current time:" .. os.date("%X"),
-                               display.contentCenterX, 180, native.systemFont,
-                               20)
+                               display.contentCenterX, 180, native.systemFont, 20)
     personalScore = display.newText(sceneGroup, "Paint The Town Score: ",
-                                    display.contentCenterX, 200,
-                                    native.systemFont, 20)
+                                    display.contentCenterX, 200, native.systemFont, 20)
     locationName = display.newText(sceneGroup, "", display.contentCenterX, 220,
                                    native.systemFont, 20)
 
-    header = display.newImageRect(sceneGroup, "themables/PaintTown.png", 300,
-                                  100)
+    header = display.newImageRect(sceneGroup, "themables/PaintTown.png", 300, 100)
     header.x = display.contentCenterX
     header.y = 80
     header:addEventListener("tap", GoToSceneSelect)
@@ -258,16 +253,14 @@ function scene:create(event)
     CreateRectangleGrid(3, 320, 400, sceneGroup, cellCollection) -- rectangular Cell11 grid with map tiles
     CreateRectangleGrid(60, 16, 20, ctsGroup, CellTapSensors, "painttown") -- rectangular Cell11 grid  with color fill
 
-    directionArrow = display.newImageRect(sceneGroup, "themables/arrow1.png",
-                                          16, 20)
+    directionArrow = display.newImageRect(sceneGroup, "themables/arrow1.png", 16, 20)
     directionArrow.x = display.contentCenterX
     directionArrow.y = display.contentCenterY
     directionArrow.anchorX = .5 -- 0 looks right on BigGrid= true. .5 looks better on BigGrid = false.
     directionArrow.anchorY = .5
     directionArrow:toFront()
 
-    zoom =
-        display.newImageRect(sceneGroup, "themables/ToggleZoom.png", 100, 100)
+    zoom = display.newImageRect(sceneGroup, "themables/ToggleZoom.png", 100, 100)
     zoom.anchorX = 0
     zoom.x = 50
     zoom.y = 80
@@ -276,12 +269,12 @@ function scene:create(event)
 
     reorderUI()
 
-    if (debug) then
-        debugText = display.newText(sceneGroup, "location data",
-                                    display.contentCenterX, 1180, 600, 0,
-                                    native.systemFont, 22)
-        debugText:toFront()
-    end
+    -- if (debug) then
+    --     debugText = display.newText(sceneGroup, "location data",
+    --                                 display.contentCenterX, 1180, 600, 0,
+    --                                 native.systemFont, 22)
+    --     debugText:toFront()
+    -- end
 
     if (debug) then print("created PaintTown scene") end
 end
