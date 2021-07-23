@@ -362,4 +362,10 @@ function PlayerInBounds(lat, lon)
     local sql = 'SELECT * FROM Bounds'
     local bounds = Query(sql)
     -- if lat or lon are outside bounds, alert the player
+    --north/south are 1 and 2, east/west are 3 and 4
+    if (lat < bounds[1] and lat > bounds[2] and lon < bounds[3] and lon > bounds[4]) then
+        return
+    end
+
+    native.showAlert("Out of Bounds", "You are out of the gameplay area bounds. There's nothing for you to see here.")
 end
