@@ -31,8 +31,15 @@ function startDatabase()
 
     -- Handle the "applicationExit" event to close the database
     local function onSystemEvent(event)
-        if (event.type == "applicationExit" and localDb:isopen()) then localDb:close() end
+        if (event.type == "applicationExit" and localDb:isopen()) then 
+            Exec('UPDATE Bounds SET LastPlayedOn = ' .. os.time())
+            localDb:close() 
+        end
     end
+
+    --Idle game logic checks on start
+    IdleStartChecks()
+    
 
     Runtime:addEventListener("system", onSystemEvent)
 end
@@ -103,6 +110,14 @@ end
     --Exec(cmd)
 
 --end
+
+function IdleStartChecks()
+    --offine gains are handled in main.lua
+    local idleCheck = SingleValueQuery('SELECT StartedCurrentIdleRun, LastPlayedOn FROM Bounds')
+    if (idleCheck[1] == 0) then
+        Exec('UPDATE Bound SET StartedCurrentIdleRun = ' .. os.time() .. ', LastPlayedOn = ' .. os.time())
+    end
+end
 
 function VisitedCell(pluscode)
     if (debugDB) then print("Checking if visited current cell " .. pluscode) end
@@ -331,4 +346,20 @@ function GetTrail(pluscode)
 
     local results = Query(query)
     return results
+end
+
+function UpdateIdleCounts()
+    local cmd = [[UPDATE IdleStats SET emptySpaceTotal = emptySpaceTotal + emptySpacePerSecond,
+    parkSpaceTotal = parkSpaceTotal + parkSpacePerSecond,
+    natureReserverSpaceTotal = natureReserveSpaceTotal + natureReserveSpacePerSecond,
+    trailSpaceTotal = trailSpaceTotal + trailSpacePerSecond,
+    graveyardSpaceTotal = graveyardSpaceTotal + graveyardSpacePerSecond,
+    touristSpaceTotal = touristSpaceTotal + touristSpacePerSecond]]
+    Exec(cmd)
+end
+
+function PlayerInBounds(lat, lon)
+    local sql = 'SELECT * FROM Bounds'
+    local bounds = Query(sql)
+    -- if lat or lon are outside bounds, alert the player
 end

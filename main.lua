@@ -100,6 +100,9 @@ function gpsListener(event)
     local plusCode6 = currentPlusCode:sub(0,6)
     local plusCodeNoPlus = removePlus(currentPlusCode)
 
+    local sqlToRun = "" --Instead of doing mulitple calls, generate the SQL and do it all in 1 command.
+    sqlToRun = 'UPDATE Bounds SET LastPlayedOn = ' .. os.time() .. '; ' 
+
     if (lastPlusCode ~= currentPlusCode) then
         currentLocationName = "" --clear out on move
 
@@ -107,7 +110,8 @@ function gpsListener(event)
         --NOTE: this will require some extra logic for local debugging, since that previously was handled in game modes.
         --PaintTheTown: mark this as visited and update times for daily/weekly bonuses in grantPoints
         if(debugGPS) then print("calculating score") end
-        lastScoreLog = "Earned " .. grantPoints(plusCodeNoPlus) .. " points from cell " .. plusCodeNoPlus
+        local pointsEarned = grantPoints(plusCodeNoPlus)
+        lastScoreLog = "Earned " .. pointsEarned .. " points from cell " .. plusCodeNoPlus
 
                 --Scavenger Hunt: Mark this area as visited
                 print("checking scavenger hunts")
@@ -146,8 +150,12 @@ function gpsListener(event)
                 else
                     currentLocationName = v[7]
                 end
-                local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"'
-                Exec(cmd)
+                sqlToRun = sqlToRun .. 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[2] .. '"; '
+                --local cmd
+                --Exec(cmd)
+                if (pointsEarned > 0 and CheckIdleType(v[7])) then
+                    sqlToRun = sqlToRun .. 'UPDATE IdleStats SET ' .. v[7] .. 'SpacePerSecond = ' .. v[7] .. 'SpacePerSecond + 1; '
+                end
             end
         end
 
@@ -163,12 +171,17 @@ function gpsListener(event)
             --check off the trail(s) from the scavenger hunt list
             for i,v in ipairs(trail) do
                 currentLocationName = v[1]
-                local cmd = 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[1] .. '"'
-                Exec(cmd)
+                sqlToRun = sqlToRun .. 'UPDATE ScavengerHunts SET playerHasVisited = 1 WHERE description = "' .. v[1] .. '"; '
+                --local cmd = 
+                --Exec(cmd)
+                if (pointsEarned > 0 and v[7] == 'trail') then
+                    sqlToRun = sqlToRun .. 'UPDATE IdleStats SET trailSpacePerSecond = trailSpacePerSecond + 1; '
+                end
             end
         end
 
-    print("done with scavenger hunt check")
+        Exec(sqlToRun)
+        print("done with movement related scoring checks")
         lastPlusCode = currentPlusCode
     end
 
@@ -192,6 +205,11 @@ function backListener(event)
     if (debug) then print("didn't handle this one") end
 end
 
+function idleIncrementor()
+    UpdateIdleCounts() --database.lua
+end
+timer.performWithDelay(1000, idleIncrementor, -1) --Put this on a 1 second loop.
+
 function assignGpsListener()
     Runtime:addEventListener("location", gpsListener)
 end
@@ -205,6 +223,23 @@ else
 end
 
 Runtime:addEventListener("key", backListener) --this could be removed on iOS
+
+function offlineGains()
+    --reward idle gains now
+    local currentTime = os.time()
+    local sqlTimeCheck = 'SELECT LastPlayedOn FROM Bounds'
+    local timeCheck = SingleValueQuery(sqlTimeCheck)
+    local secondsAway = currentTime - timeCheck
+    local cmd = [[UPDATE IdleStats SET emptySpaceTotal = emptySpaceTotal + (emptySpacePerSecond * ]] .. secondsAway.. [[),
+    parkSpaceTotal = parkSpaceTotal + (parkSpacePerSecond * ]] .. secondsAway.. [[),
+    natureReserverSpaceTotal = natureReserveSpaceTotal + (natureReserveSpacePerSecond * ]] .. secondsAway.. [[),
+    trailSpaceTotal = trailSpaceTotal + (trailSpacePerSecond * ]] .. secondsAway.. [[),
+    graveyardSpaceTotal = graveyardSpaceTotal + (graveyardSpacePerSecond * ]] .. secondsAway.. [[),
+    touristSpaceTotal = touristSpaceTotal + (touristSpacePerSecond * ]] .. secondsAway.. [[)]]
+    Exec(cmd)
+
+end
+offlineGains()
 
 print("shifting to loading scene")
 composer.gotoScene("SceneSelect")
@@ -240,4 +275,11 @@ local function testDrift()
     else
         currentPlusCode = shiftCell(currentPlusCode, -1, 10) -- move east if 1, west if -1
     end
+end
+
+local function CheckIdleType(areaType)
+    if (areaType == '' or areaType == 'park' or areaType == 'natureReserve' or areaType == 'tourist' or areaType == 'graveyard' or areaType == 'trail') then
+        return true
+    end
+    return false
 end
